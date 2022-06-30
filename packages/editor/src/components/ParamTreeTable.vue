@@ -36,8 +36,7 @@
 </template>
 
 <script>
-  import { ElInput, ElIcon } from 'element-plus'
-  import { Delete } from '@element-plus/icons-vue'
+  import { ElInput } from 'element-plus'
   import shortid from 'shortid'
   import Sortable from 'sortablejs'
   import { insertNodeAt, removeNode, generateArray } from './utils'
@@ -51,8 +50,6 @@
     components: {
       TreeTableRow,
       ElInput,
-      ElIcon,
-      Delete,
     },
     props: {
       editor: {
@@ -196,7 +193,7 @@
       generateSubParam(parentModel) {
         let name = ''
 
-        if (parentModel && parentModel.node.type === PARAM_TYPES.VALUES.ARRAY && parentModel.node.name) {
+        if (parentModel && parentModel.node.type === PARAM_TYPES.VALUES.ARRAY) {
           name = parentModel.node.name + generateArray(1)
         }
 
@@ -212,8 +209,6 @@
 
       handleSortRows(event) {
         const { item, from, to, oldIndex, newIndex } = event
-        // console.log(item, from, to, oldIndex, newIndex);
-        // console.log(from === to ? "同级" : "跨级");
 
         // 同级
         if (from === to) {

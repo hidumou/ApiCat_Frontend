@@ -63,8 +63,9 @@ export default class LinkToolbar {
   }
 
   createPopper() {
-    return tippy(document.body, {
-      appendTo: () => document.body,
+    const { view } = this.editor
+    return tippy(view.dom.parentNode || document.body, {
+      appendTo: () => view.dom.parentNode || document.body,
       duration: 0,
       getReferenceClientRect: null,
       content: this.element,
