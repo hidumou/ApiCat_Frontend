@@ -44,8 +44,7 @@
 
   import TreeTableRow from './ResponseParamTreeTableRow.vue'
   import TreeTableStore from './TreeTableStore'
-  import { ElInput, ElIcon } from 'element-plus'
-  import { Delete } from '@element-plus/icons-vue'
+  import { ElInput } from 'element-plus'
   import { insertNodeAt, removeNode, generateArray } from './utils'
   import { $emit } from '@natosoft/shared'
 
@@ -58,8 +57,6 @@
     components: {
       TreeTableRow,
       ElInput,
-      ElIcon,
-      Delete,
     },
     props: {
       editor: {
@@ -209,7 +206,7 @@
       generateSubParam(parentModel) {
         let name = ''
 
-        if (parentModel && parentModel.node.type === PARAM_TYPES.VALUES.ARRAY && parentModel.node.name) {
+        if (parentModel && parentModel.node.type === PARAM_TYPES.VALUES.ARRAY) {
           name = parentModel.node.name + generateArray(1)
         }
 
