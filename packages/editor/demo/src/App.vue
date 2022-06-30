@@ -67,11 +67,12 @@
     })
   }
 
-  onMounted(async () => {})
+  onMounted(async () => {
+    //
+  })
 </script>
 
 <template>
-  <button @click="getDetail">获取文档详情</button>
   <div class="editor-container">
     <AcEditor ref="editor" :document="document" :options="options" />
   </div>

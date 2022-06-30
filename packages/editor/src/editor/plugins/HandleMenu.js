@@ -64,9 +64,7 @@ export default class HandleMenu {
 
     this.renderMenu()
 
-    const { view } = this.editor
-
-    this.tippy = tippy(view.dom.parentNode || document.body, {
+    this.tippy = tippy(document.body, {
       content: this.menuWrapper,
       getReferenceClientRect: () => {
         if (document.body.contains(ref)) {
