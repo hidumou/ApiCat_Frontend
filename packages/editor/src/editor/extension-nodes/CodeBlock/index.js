@@ -43,7 +43,7 @@ export default class CodeBlock extends Node {
       isolating: true,
       marks: '',
       selectable: true,
-      draggable: true,
+      draggable: false,
       parseDOM: [
         {
           tag: 'pre',
