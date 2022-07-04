@@ -1,6 +1,6 @@
 {
   "name": "@natosoft/doc-content-css",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "main": "dist/style.css",
   "files": [
     "dist/style.css"
