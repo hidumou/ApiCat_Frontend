@@ -44,11 +44,18 @@
           this.onSubmit()
         }
       },
+      node: function () {
+        console.log()
+        if (this.node) {
+          this.intro = this.node.attrs.intro
+        }
+      },
     },
     data() {
       return {
         httpCodeList: HttpCodeMap.concat([]),
         popper: null,
+        intro: '',
         rules: {
           code: { required: true, message: '', trigger: 'change' },
           intro: { required: true, message: '', trigger: 'change' },
@@ -62,8 +69,12 @@
         this.$refs['updateHttpCodeAttrs'].validate((valid) => {
           if (valid && this.node) {
             const attrs = { ...this.attrs }
-            attrs.codeDesc = (this.httpCodeList.find((item) => item.code === this.attrs.code) || { desc: '' }).desc
-            cb(this.isCreate, this.node, { ...this.attrs })
+            const codeInfo = this.httpCodeList.find((item) => item.code === this.attrs.code) || { desc: '' }
+            // 对比是否改变，未改变不进行操作
+            if (this.intro !== attrs.intro) {
+              attrs.codeDesc = codeInfo.desc
+              cb(this.isCreate, this.node, { ...this.attrs })
+            }
           }
         })
       },

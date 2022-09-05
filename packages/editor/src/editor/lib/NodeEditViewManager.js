@@ -50,6 +50,7 @@ export default class NodeEditViewManager {
     })
 
     $once(vm, 'on-close', () => {
+      this.$vm = null
       this.tippy.hide()
     })
 
@@ -156,7 +157,7 @@ export default class NodeEditViewManager {
   }
 
   hide() {
-    this.$vm.onHide && this.$vm.onHide((isCreate, node, attrs) => (isCreate ? this.createNode(node, attrs) : this.updateNodeAttrs(node, attrs)))
+    this.$vm && this.$vm.onHide && this.$vm.onHide((isCreate, node, attrs) => (isCreate ? this.createNode(node, attrs) : this.updateNodeAttrs(node, attrs)))
     this.$app && this.$app.unmount()
     this.$vm = null
     this.$app = null
