@@ -302,7 +302,7 @@
         this.editor.commonParamsPopper && this.editor.commonParamsPopper.addParam(node)
       },
 
-      getDefaultMockRule(node, oldType) {
+      getDefaultMockRule(node) {
         if (!isPlainObject(node)) {
           throw new Error('响应参数类型有误！')
         }
@@ -343,11 +343,6 @@
               break
             }
           }
-        }
-
-        // object -> array_object
-        if (defaultRule === 'array' && oldType === 5 && node.sub_params && node.sub_params.length >= 2) {
-          defaultRule = 'array_object'
         }
 
         return defaultRule
