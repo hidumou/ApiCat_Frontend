@@ -56,6 +56,7 @@
         httpCodeList: HttpCodeMap.concat([]),
         popper: null,
         intro: '',
+        isEnterPressed: false,
         rules: {
           code: { required: true, message: '', trigger: 'change' },
           intro: { required: true, message: '', trigger: 'change' },
@@ -71,10 +72,12 @@
             const attrs = { ...this.attrs }
             const codeInfo = this.httpCodeList.find((item) => item.code === this.attrs.code) || { desc: '' }
             // 对比是否改变，未改变不进行操作
-            if (this.intro !== attrs.intro) {
-              attrs.codeDesc = codeInfo.desc
-              cb(this.isCreate, this.node, { ...this.attrs })
+            if (this.intro === attrs.intro && !this.isEnterPressed) {
+              return
             }
+
+            attrs.codeDesc = codeInfo.desc
+            cb(this.isCreate, this.node, { ...this.attrs })
           }
         })
       },
@@ -95,12 +98,14 @@
       },
 
       handleKeyDown(event) {
+        this.isEnterPressed = false
         if (['Enter', 'Escape'].indexOf(event.key) !== -1) {
           event.preventDefault()
           event.stopPropagation()
         }
 
         if (event.key === 'Enter') {
+          this.isEnterPressed = true
           this.onSubmit()
           return
         }
@@ -112,6 +117,7 @@
     },
 
     created() {
+      this.isEnterPressed = false
       window.addEventListener('keydown', this.handleKeyDown)
     },
 
