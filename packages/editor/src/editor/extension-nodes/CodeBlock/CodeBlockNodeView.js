@@ -100,14 +100,14 @@ export default class CodeBlockView {
   renderLanguageSelect() {
     const select = document.createElement('select')
     select.addEventListener('change', (e) => this.handleLanguageChange(e))
-    ;(this.options.languages || []).forEach((key) => {
-      const option = document.createElement('option')
-      const value = key === 'none' ? '' : key
-      option.value = value
-      option.innerText = key
-      option.selected = this.node.attrs.language === value
-      select.appendChild(option)
-    })
+      ; (this.options.languages || []).forEach((key) => {
+        const option = document.createElement('option')
+        const value = key === 'none' ? '' : key
+        option.value = value
+        option.innerText = key
+        option.selected = this.node.attrs.language === value
+        select.appendChild(option)
+      })
 
     return select
   }
@@ -197,6 +197,13 @@ export default class CodeBlockView {
       [`${mod}-Z`]: () => undo(view.state, view.dispatch),
       [`Shift-${mod}-Z`]: () => redo(view.state, view.dispatch),
       [`${mod}-Y`]: () => redo(view.state, view.dispatch),
+      Tab: function (cm) {
+        if (cm.somethingSelected()) {
+          cm.indentSelection('add')
+        } else {
+          cm.replaceSelection(cm.getOption('indentWithTabs') ? '\t' : Array(cm.getOption('indentUnit') + 1).join(' '), 'end', '+input')
+        }
+      }
     })
   }
 
