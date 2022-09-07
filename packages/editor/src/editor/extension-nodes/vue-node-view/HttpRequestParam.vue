@@ -47,12 +47,13 @@
       const headerParams = ref(props.node.attrs.request_header.params)
       const bodyParams = ref(props.node.attrs.request_body.params)
       const queryParams = ref(props.node.attrs.request_query.params)
+      const pathParams = ref(props.node.attrs.request_path.params)
 
       const tabs = ref([
         { id: 'input_' + shortid(), key: 'request_header', data: headerParams, title: props.node.attrs.request_header.title, isEdit: false },
         { id: 'input_' + shortid(), key: 'request_body', data: bodyParams, title: props.node.attrs.request_body.title, isEdit: false },
         { id: 'input_' + shortid(), key: 'request_query', data: queryParams, title: props.node.attrs.request_query.title, isEdit: false },
-        { id: 'input_' + shortid(), key: 'request_path', data: queryParams, title: props.node.attrs.request_path.title, isEdit: false },
+        { id: 'input_' + shortid(), key: 'request_path', data: pathParams, title: props.node.attrs.request_path.title, isEdit: false },
       ])
 
       const onEditTitleIconClick = async (item) => {
@@ -81,15 +82,17 @@
       }
 
       watch(
-        [headerParams, bodyParams, queryParams],
-        ([newHeaderParams, newBodyParams, newQueryParams]) => {
+        [headerParams, bodyParams, queryParams, pathParams],
+        ([newHeaderParams, newBodyParams, newQueryParams, newPathParams]) => {
           const hTitle = props.node.attrs.request_header.title
           const bTitle = props.node.attrs.request_body.title
           const qTitle = props.node.attrs.request_query.title
+          const pTitle = props.node.attrs.request_path.title
           props.updateAttributes({
             request_header: { params: toRaw(newHeaderParams), title: hTitle },
             request_body: { params: toRaw(newBodyParams), title: bTitle },
             request_query: { params: toRaw(newQueryParams), title: qTitle },
+            request_path: { params: toRaw(newPathParams), title: pTitle },
           })
         },
         { deep: true }
