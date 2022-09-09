@@ -2182,6 +2182,189 @@ export default {
     ],
 }
 
+export const doc3 = {
+    type: 'doc',
+    content: [
+        { type: 'paragraph' },
+        {
+            type: 'http_api_request_parameter',
+            attrs: {
+                title: '请求参数',
+                request_header: {
+                    params: [{ name: '555', type: 1, is_must: false, default_value: '', description: '', sub_params: [], _id: 'esiQxQDGZ', expand: true }],
+                    title: 'Header 请求参数',
+                },
+                request_body: { params: [], title: 'Body 请求参数' },
+                request_query: {
+                    params: [
+                        { name: '333', type: 1, is_must: false, default_value: '', description: '', sub_params: [], _id: 'Ei9RbG9f6', expand: true },
+                        { name: '2222', type: 1, is_must: false, default_value: '', description: '', sub_params: [], _id: 'e0jg2Nv07', expand: true },
+                    ],
+                    title: 'Query 请求参数',
+                },
+                request_path: {
+                    params: [{ name: '1111', type: 1, is_must: false, default_value: '', description: '', sub_params: [], _id: '6SSYRoHuD', expand: true }],
+                    title: 'Path 请求参数',
+                },
+            },
+        },
+        { type: 'paragraph' },
+    ],
+}
+
+export const doc4 = {
+    type: 'doc',
+    content: [
+        {
+            type: 'heading',
+            attrs: {
+                level: '3',
+            },
+            content: [
+                {
+                    type: 'text',
+                    text: '请求示例',
+                },
+            ],
+        },
+        {
+            type: 'code_block',
+            content: [
+                {
+                    type: 'text',
+                    text: '{{host}}/api/web/good/functionExpired?limit=10&page=1&function_name[]=存量车场商品包\n',
+                },
+            ],
+        },
+        {
+            type: 'heading',
+            attrs: {
+                level: '3',
+            },
+            content: [
+                {
+                    type: 'text',
+                    text: '返回示例',
+                },
+            ],
+        },
+        {
+            type: 'code_block',
+            content: [
+                {
+                    type: 'text',
+                    text: '{\n    "message": "操作成功",\n    "data": [\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "2447-10-23 23:59:59",\n            "good_name": "测试兑换码按集团",\n            "park_code": 0,\n            "good_id": 2100007,\n            "function_id": 30032\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "2023-03-10 23:59:59",\n            "good_name": "计费单位集团new",\n            "park_code": 0,\n            "good_id": 2250029,\n            "function_id": 30037\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "2023-03-10 23:59:59",\n            "good_name": "计费单位集团new",\n            "park_code": 0,\n            "good_id": 2250029,\n            "function_id": 60013\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "2023-03-10 23:59:59",\n            "good_name": "计费单位集团new",\n            "park_code": 0,\n            "good_id": 2250029,\n            "function_id": 240001\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "",\n            "good_name": "",\n            "park_code": 0,\n            "good_id": 0,\n            "function_id": 60008\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "",\n            "good_name": "",\n            "park_code": 0,\n            "good_id": 0,\n            "function_id": 60009\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "",\n            "good_name": "",\n            "park_code": 0,\n            "good_id": 0,\n            "function_id": 60010\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "",\n            "good_name": "",\n            "park_code": 0,\n            "good_id": 0,\n            "function_id": 60011\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "",\n            "good_name": "",\n            "park_code": 0,\n            "good_id": 0,\n            "function_id": 60012\n        },\n        {\n            "buyer": "乌托邦测试A",\n            "validetime": "",\n            "good_name": "",\n            "park_code": 0,\n            "good_id": 0,\n            "function_id": 270002\n        }\n    ],\n    "code": "1"\n}\n',
+                },
+            ],
+        },
+        {
+            type: 'http_api_url',
+            attrs: {
+                path: '/web/good/functionExpired',
+                method: 1,
+                bodyDataType: 1,
+                url: 'http://{{baseUrl}}',
+            },
+        },
+        {
+            type: 'heading',
+            attrs: {
+                level: 3,
+            },
+            content: [
+                {
+                    type: 'text',
+                    text: '请求参数',
+                },
+            ],
+        },
+        {
+            type: 'http_api_request_parameter',
+            attrs: {
+                title: '请求参数',
+                request_body: {
+                    title: 'Body 请求参数',
+                    params: [],
+                },
+                request_path: {
+                    title: 'request_path 请求参数',
+                    params: [],
+                },
+                request_header: {
+                    title: 'Header 请求参数',
+                    params: [
+                        {
+                            default_value: '',
+                            sub_params: [],
+                            is_must: true,
+                            name: 'Accept',
+                            type: 3,
+                            description: '',
+                        },
+                    ],
+                },
+                request_query: {
+                    title: 'Query 请求参数',
+                    params: [
+                        {
+                            default_value: 'exercitation deserunt minim commodo',
+                            sub_params: [],
+                            is_must: true,
+                            name: 'page',
+                            type: 3,
+                            description: '(Required) 当前页',
+                        },
+                        {
+                            default_value: 'exercitation deserunt minim commodo',
+                            sub_params: [],
+                            is_must: true,
+                            name: 'limit',
+                            type: 3,
+                            description: '(Required) 每页显示条数',
+                        },
+                        {
+                            default_value: 'exercitation deserunt minim commodo',
+                            sub_params: [],
+                            is_must: true,
+                            name: 'is_group_good',
+                            type: 3,
+                            description: '(Required) 集团类的商品这个参数为1,车场类的商品为0',
+                        },
+                        {
+                            default_value: 'exercitation deserunt minim commodo',
+                            sub_params: [],
+                            is_must: true,
+                            name: 'function_name',
+                            type: 3,
+                            description: '(Required) 功能数组',
+                        },
+                    ],
+                },
+            },
+        },
+        {
+            type: 'http_status_code',
+            attrs: {
+                intro: 'Response Status Code:',
+                codeDesc: 'OK',
+                code: 200,
+            },
+        },
+        {
+            type: 'heading',
+            attrs: {
+                level: 3,
+            },
+            content: [
+                {
+                    type: 'text',
+                    text: '返回参数',
+                },
+            ],
+        },
+    ],
+}
+
 export const getDocumentDetail = async () => {
     await delay(1000)
     return JSON.parse(JSON.stringify(doc2))

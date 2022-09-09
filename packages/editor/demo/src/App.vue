@@ -1,9 +1,9 @@
 <script setup>
   import { onMounted, markRaw, ref } from 'vue'
   import AcEditor from '@natosoft/editor'
-  import { onlyTable as doc } from './doc'
+  // import { doc4 as doc } from './doc'
 
-  const document = markRaw(doc)
+  const document = markRaw({})
   const editor = ref(null)
 
   const options = {
@@ -68,7 +68,7 @@
   }
 
   onMounted(async () => {
-    //
+    window['editor'] = editor.value.editor
   })
 </script>
 
