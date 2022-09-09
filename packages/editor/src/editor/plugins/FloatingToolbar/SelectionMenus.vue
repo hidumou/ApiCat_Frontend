@@ -34,6 +34,7 @@
         isLink: false,
         range: null,
         mark: { attrs: {} },
+        aText: '',
       }
     },
     methods: {
@@ -54,7 +55,14 @@
       },
 
       onCreateLink(attrs) {
-        this.editor.commands.link(attrs)
+        const { dispatch, state } = this.view
+        const { from, to } = state.selection
+
+        if (attrs.text) {
+          dispatch(this.view.state.tr.replaceWith(from, to, state.schema.text(attrs.text, state.schema.marks.link.create(attrs))))
+        } else {
+          this.editor.commands.link(attrs)
+        }
         this.range && this.view.dispatch(setTextSelection(this.range.to)(this.view.state.tr))
         this.$emit('on-close')
         this.view.focus()
@@ -62,6 +70,7 @@
 
       updateFloatMenus() {
         const { dictionary, editor } = this
+
         const { view } = editor
         const { state } = view
 
@@ -85,9 +94,9 @@
 
         if (isLink && range) {
           this.range = range
-          this.mark = { ...this.range.mark }
+          const text = state.doc.cut(state.selection.from, state.selection.to).textContent
+          this.mark = { ...this.range.mark, text }
           this.isLink = isLink
-
           return []
         }
 

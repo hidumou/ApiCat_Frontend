@@ -58,7 +58,6 @@ export default class LinkToolbar {
     const { dispatch, state } = this.view
     const { from, to } = state.selection
     const title = attrs.href
-
     dispatch(this.view.state.tr.insertText(attrs.href, from, to).addMark(from, to + title.length, state.schema.marks.link.create(attrs)))
   }
 

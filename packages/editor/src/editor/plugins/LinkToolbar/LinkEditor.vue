@@ -1,13 +1,14 @@
 <template>
   <div class="link-bar-wrapper">
     <input type="text" v-model="attrs.href" class="link-input" ref="input" placeholder="链接地址" @keydown.enter="onKeydown" />
-    <button class="link-btn" v-if="!isCreate" @click="onRemoveLinkClick">
-      <i class="editor-font editor-trash" title="移除链接"></i>
-    </button>
+    <hr />
+    <input type="text" v-model="aText" class="link-input block" ref="inputText" placeholder="链接标题" @keydown.enter="onKeydown" />
 
-    <button class="link-btn" v-if="isCreate" @click="onCloseClick">
-      <i class="editor-font el-icon-close" title="关闭"></i>
-    </button>
+    <div class="link-bar-btns" v-if="!isCreate">
+      <button class="link-btn" @click="onRemoveLinkClick">
+        <i class="editor-font editor-trash" title="移除链接"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -19,7 +20,7 @@
       mark: {
         type: Object,
         required: true,
-        default: () => ({ attrs: {} }),
+        default: () => ({ attrs: {}, text: '' }),
       },
 
       isCreate: {
@@ -31,11 +32,13 @@
     data() {
       return {
         attrs: { ...this.mark.attrs },
+        aText: this.mark.text,
       }
     },
     watch: {
       mark: function () {
         this.attrs = { ...this.mark.attrs }
+        this.aText = this.mark.text
       },
     },
     computed: {
@@ -68,8 +71,11 @@
 
       onKeydown(event) {
         event.preventDefault()
-        $emit(this, 'on-create', { ...this.attrs, href: this.$refs.input.value })
+        var text = !this.aText ? this.mark.text : this.aText
+        console.log(text)
+        $emit(this, 'on-create', { ...this.attrs, href: this.$refs.input.value, text })
         this.$refs.input.value = ''
+        this.$refs.inputText.value = ''
       },
 
       focus() {
