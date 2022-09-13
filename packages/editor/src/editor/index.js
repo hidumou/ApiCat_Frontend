@@ -13,24 +13,24 @@ import ExtensionManager from './lib/ExtensionManager'
 import dictionary from './dictionary'
 
 import {
-    Blockquote,
-    BulletList,
-    CheckboxItem,
-    CheckboxList,
-    Doc,
-    Embed,
-    HardBreak,
-    Heading,
-    HorizontalRule,
-    Image,
-    ListItem,
-    OrderedList,
-    Paragraph,
-    Table,
-    TableCell,
-    TableHeadCell,
-    TableRow,
-    Text,
+  Blockquote,
+  BulletList,
+  CheckboxItem,
+  CheckboxList,
+  Doc,
+  Embed,
+  HardBreak,
+  Heading,
+  HorizontalRule,
+  Image,
+  ListItem,
+  OrderedList,
+  Paragraph,
+  Table,
+  TableCell,
+  TableHeadCell,
+  TableRow,
+  Text,
 } from './nodes'
 
 import ApiUrl from './extension-nodes/ApiUrl'
@@ -66,457 +66,458 @@ import checkContent from './utils/checkContent'
 import checkAllNode from './utils/checkAllNode'
 
 export const EDITOR_EVENTS = {
-    Init: 'onInit',
-    Transaction: 'onTransaction',
-    Update: 'onUpdate',
-    Focus: 'onFocus',
-    Blur: 'onBlur',
-    Paste: 'onPaste',
-    Drop: 'onDrop',
-    ShowToast: 'onShowToast',
-    ClickLink: 'onClickLink',
-    ClickHashTag: 'onClickHashTag',
-    HoverLink: 'onHoverLink',
-    BlockMenuOpen: 'onBlockMenuOpen',
-    BlockMenuClose: 'onBlockMenuClose',
-    EditResponseMock: 'onEditResponseMock',
+  Init: 'onInit',
+  Transaction: 'onTransaction',
+  Update: 'onUpdate',
+  Focus: 'onFocus',
+  Blur: 'onBlur',
+  Paste: 'onPaste',
+  Drop: 'onDrop',
+  ShowToast: 'onShowToast',
+  ClickLink: 'onClickLink',
+  ClickHashTag: 'onClickHashTag',
+  HoverLink: 'onHoverLink',
+  BlockMenuOpen: 'onBlockMenuOpen',
+  BlockMenuClose: 'onBlockMenuClose',
+  EditResponseMock: 'onEditResponseMock',
 }
 
 class AcEditor extends Emitter {
-    constructor(el = null, options) {
-        super()
-        this.element = el
-        this.init(options)
-    }
+  constructor(el = null, options) {
+    super()
+    this.element = el
+    this.init(options)
+  }
 
-    static DEFAULT_OPTIONS = {
-        dictionary,
-        readonly: false,
-        isShowDevTool: false,
-        useBaseExtensions: true,
-        extensions: [],
-        content: '',
-        topNode: 'doc',
-        emptyDocument: {
-            type: 'doc',
-            content: [
-                {
-                    type: 'paragraph',
-                },
-            ],
+  static DEFAULT_OPTIONS = {
+    dictionary,
+    readonly: false,
+    isShowDevTool: false,
+    useBaseExtensions: true,
+    extensions: [],
+    content: '',
+    topNode: 'doc',
+    emptyDocument: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
         },
-        parseOptions: {},
-        uploadImage: null,
-        onImageUploadStart: null,
-        onImageUploadStop: null,
-        getAllCommonParams: null,
-        addCommonParam: null,
-        deleteCommonParam: null,
-        showToast: () => { },
-        openNotification: () => { },
+      ],
+    },
+    parseOptions: {},
+    uploadImage: null,
+    onImageUploadStart: null,
+    onImageUploadStop: null,
+    getAllCommonParams: null,
+    addCommonParam: null,
+    deleteCommonParam: null,
+    showToast: () => {},
+    openNotification: () => {},
+  }
+
+  static create(el, opt) {
+    return new AcEditor(el, opt)
+  }
+
+  get state() {
+    return this.view ? this.view.state : null
+  }
+
+  get isDestroyed() {
+    return this.view ? !this.view.docView : !this.view
+  }
+
+  get isEditable() {
+    return this.view && this.view.editable
+  }
+
+  init(options) {
+    this.mergeOptions(options)
+
+    this.commonUrlManager = new CommonUrlManager(this)
+    this.mockModel = new MockRules(this)
+
+    this.extensions = this.createExtensions()
+    this.nodes = this.createNodes()
+    this.marks = this.createMarks()
+    this.schema = this.createSchema()
+    this.plugins = this.createPlugins()
+    this.keymaps = this.createKeymaps()
+    this.serializer = this.createSerializer()
+    this.parser = this.createParser()
+    this.inputRules = this.createInputRules()
+    this.nodeViews = this.createNodeViews()
+    this.view = this.createView()
+    this.commands = this.createCommands()
+
+    // extend editor plugin
+    this.nodeEditViewManager = this.createNodeEditViewManager()
+    this.commonParamsPopper = new CommonParamsPopper(this)
+    this.blockMenu = new BlockMenu(this, this.options)
+    this.floatingToolbar = new FloatingToolbar(this, this.options)
+    this.linkToolbar = new LinkToolbar(this, this.options)
+  }
+
+  mergeOptions(options) {
+    this.options = {
+      ...AcEditor.DEFAULT_OPTIONS,
+      ...options,
     }
+  }
 
-    static create(el, opt) {
-        return new AcEditor(el, opt)
-    }
+  baseExtensions() {
+    return [
+      new Doc(),
+      new Text(),
+      new Paragraph(),
 
-    get state() {
-        return this.view ? this.view.state : null
-    }
+      new HardBreak(),
+      new Blockquote(),
+      new CodeBlockHighlight({ readonly: this.options.readonly }),
+      new CheckboxList(),
+      new CheckboxItem(),
+      new BulletList(),
+      new Embed(),
+      new ListItem(),
+      new Heading({
+        dictionary,
+      }),
+      new HorizontalRule(),
+      new Table(),
+      new TableCell(),
+      new TableHeadCell(),
+      new TableRow(),
+      new Bold(),
+      new Code(),
+      new Highlight(),
+      new Italic(),
+      new Underline(),
+      new Strike(),
+      new Link({
+        onKeyboardShortcut: noop,
+        onClickLink: () => this[EDITOR_EVENTS.ClickLink](),
+        onClickHashTag: () => this[EDITOR_EVENTS.ClickHashTag](),
+        onHoverLink: () => this[EDITOR_EVENTS.HoverLink](),
+      }),
+      new Strike(),
+      new OrderedList(),
+      new Image({
+        dictionary,
+        uploadImage: this.options.uploadImage,
+        onImageUploadStart: this.options.onImageUploadStart,
+        onImageUploadStop: this.options.onImageUploadStop,
+        showToast: this.options.showToast,
+      }),
 
-    get isDestroyed() {
-        return this.view ? !this.view.docView : !this.view
-    }
+      //api doc node
+      new ApiUrl(),
+      new HttpUrl(),
+      new HttpCode(),
+      new ParamTable(),
+      new HttpRequestParam(),
+      new HttpResponseParam(),
 
-    get isEditable() {
-        return this.view && this.view.editable
-    }
+      // plugins
+      new History(),
+      new Keys({
+        onBlur: noop,
+        onFocus: noop,
+        onSave: noop,
+        onSaveAndExit: noop,
+        onCancel: noop,
+      }),
+      new TrailingNode(),
+      new MarkdownPaste(),
+      new DragAndDropHandle(),
+      new BlockMenuTrigger(this.options),
+      new ScrollView({ enabled: true }),
+    ]
+  }
 
-    init(options) {
-        this.mergeOptions(options)
+  createExtensions() {
+    return new ExtensionManager([...this.baseExtensions(), ...this.options.extensions], this)
+  }
 
-        this.commonUrlManager = new CommonUrlManager(this)
-        this.mockModel = new MockRules(this)
+  createNodes() {
+    return this.extensions.nodes
+  }
 
-        this.extensions = this.createExtensions()
-        this.nodes = this.createNodes()
-        this.marks = this.createMarks()
-        this.schema = this.createSchema()
-        this.plugins = this.createPlugins()
-        this.keymaps = this.createKeymaps()
-        this.serializer = this.createSerializer()
-        this.parser = this.createParser()
-        this.inputRules = this.createInputRules()
-        this.nodeViews = this.createNodeViews()
-        this.view = this.createView()
-        this.commands = this.createCommands()
+  createMarks() {
+    return this.extensions.marks
+  }
 
-        // extend editor plugin
-        this.nodeEditViewManager = this.createNodeEditViewManager()
-        this.commonParamsPopper = new CommonParamsPopper(this)
-        this.blockMenu = new BlockMenu(this, this.options)
-        this.floatingToolbar = new FloatingToolbar(this, this.options)
-        this.linkToolbar = new LinkToolbar(this, this.options)
-    }
+  createSchema() {
+    return new Schema({
+      topNode: this.options.topNode,
+      nodes: this.nodes,
+      marks: this.marks,
+    })
+  }
 
-    mergeOptions(options) {
-        this.options = {
-            ...AcEditor.DEFAULT_OPTIONS,
-            ...options,
-        }
-    }
+  createPlugins() {
+    return this.extensions.plugins
+  }
 
-    baseExtensions() {
-        return [
-            new Doc(),
-            new Text(),
-            new Paragraph(),
+  createKeymaps() {
+    return this.extensions.keymaps({
+      schema: this.schema,
+    })
+  }
 
-            new HardBreak(),
-            new Blockquote(),
-            new CodeBlockHighlight({ readonly: this.options.readonly }),
-            new CheckboxList(),
-            new CheckboxItem(),
-            new BulletList(),
-            new Embed(),
-            new ListItem(),
-            new Heading({
-                dictionary,
-            }),
-            new HorizontalRule(),
-            new Table(),
-            new TableCell(),
-            new TableHeadCell(),
-            new TableRow(),
-            new Bold(),
-            new Code(),
-            new Highlight(),
-            new Italic(),
-            new Underline(),
-            new Strike(),
-            new Link({
-                onKeyboardShortcut: noop,
-                onClickLink: () => this[EDITOR_EVENTS.ClickLink](),
-                onClickHashTag: () => this[EDITOR_EVENTS.ClickHashTag](),
-                onHoverLink: () => this[EDITOR_EVENTS.HoverLink](),
-            }),
-            new Strike(),
-            new OrderedList(),
-            new Image({
-                dictionary,
-                uploadImage: this.options.uploadImage,
-                onImageUploadStart: this.options.onImageUploadStart,
-                onImageUploadStop: this.options.onImageUploadStop,
-                showToast: this.options.showToast,
-            }),
+  createInputRules() {
+    return this.extensions.inputRules({
+      schema: this.schema,
+    })
+  }
 
-            //api doc node
-            new ApiUrl(),
-            new HttpUrl(),
-            new HttpCode(),
-            new ParamTable(),
-            new HttpRequestParam(),
-            new HttpResponseParam(),
-
-            // plugins
-            new History(),
-            new Keys({
-                onBlur: noop,
-                onFocus: noop,
-                onSave: noop,
-                onSaveAndExit: noop,
-                onCancel: noop,
-            }),
-            new TrailingNode(),
-            new MarkdownPaste(),
-            new DragAndDropHandle(),
-            new BlockMenuTrigger(this.options),
-            new ScrollView({ enabled: true }),
-        ]
-    }
-
-    createExtensions() {
-        return new ExtensionManager([...this.baseExtensions(), ...this.options.extensions], this)
-    }
-
-    createNodes() {
-        return this.extensions.nodes
-    }
-
-    createMarks() {
-        return this.extensions.marks
-    }
-
-    createSchema() {
-        return new Schema({
-            topNode: this.options.topNode,
-            nodes: this.nodes,
-            marks: this.marks,
-        })
-    }
-
-    createPlugins() {
-        return this.extensions.plugins
-    }
-
-    createKeymaps() {
-        return this.extensions.keymaps({
-            schema: this.schema,
-        })
-    }
-
-    createInputRules() {
-        return this.extensions.inputRules({
-            schema: this.schema,
-        })
-    }
-
-    createNodeViews() {
-        let views = this.extensions.extensions
-            .filter((extension) => extension.component)
-            .reduce((nodeViews, extension) => {
-                const nodeView = (node, view, getPos, decorations, innerDecorations) => {
-                    return new ComponentView(extension.component, {
-                        editor: this,
-                        extension,
-                        node,
-                        view,
-                        getPos,
-                        decorations,
-                        innerDecorations,
-                    })
-                }
-
-                return {
-                    ...nodeViews,
-                    [extension.name]: nodeView,
-                }
-            }, {})
-
-        views = this.extensions.extensions
-            .filter((extension) => extension.nodeView)
-            .reduce((nodeViews, extension) => {
-                const nodeView = (node, view, getPos, decorations, innerDecorations) => {
-                    return new extension.nodeView({
-                        extension,
-                        node,
-                        view,
-                        getPos,
-                        decorations,
-                        innerDecorations,
-                        editor: this,
-                    })
-                }
-
-                return {
-                    ...nodeViews,
-                    [extension.name]: nodeView,
-                }
-            }, views || {})
-
-        return views
-    }
-
-    createView() {
-        if (!this.element) {
-            throw new Error('createView called before ref available')
-        }
-        let view = new EditorView(this.element, {
-            state: this.createState(),
-            nodeViews: this.nodeViews,
-            editable: () => !this.options.readonly,
-            dispatchTransaction: (transaction) => {
-                let isUpdateContent = transaction.getMeta('update.content')
-                if (this.options.readonly && !isUpdateContent && transaction.curSelection instanceof NodeSelection) {
-                    return
-                }
-                const { state } = this.view.state.applyTransaction(transaction)
-                this.view.updateState(state)
-
-                if (!transaction.docChanged) {
-                    return
-                }
-                this[EDITOR_EVENTS.Update]()
-            },
-        })
-
-        if (this.options.readonly) {
-            view.dom.className += ' readonly'
+  createNodeViews() {
+    let views = this.extensions.extensions
+      .filter((extension) => extension.component)
+      .reduce((nodeViews, extension) => {
+        const nodeView = (node, view, getPos, decorations, innerDecorations) => {
+          return new ComponentView(extension.component, {
+            editor: this,
+            extension,
+            node,
+            view,
+            getPos,
+            decorations,
+            innerDecorations,
+          })
         }
 
-        return view
-    }
+        return {
+          ...nodeViews,
+          [extension.name]: nodeView,
+        }
+      }, {})
 
-    createState() {
-        // copy prosemirror-commands createParagraphNear
-        function defaultBlockAt(match) {
-            for (var i = 0; i < match.edgeCount; i++) {
-                var ref = match.edge(i)
-                var type = ref.type
-                if (type.isTextblock && !type.hasRequiredAttrs()) {
-                    return type
-                }
-            }
-            return null
+    views = this.extensions.extensions
+      .filter((extension) => extension.nodeView)
+      .reduce((nodeViews, extension) => {
+        const nodeView = (node, view, getPos, decorations, innerDecorations) => {
+          return new extension.nodeView({
+            extension,
+            node,
+            view,
+            getPos,
+            decorations,
+            innerDecorations,
+            editor: this,
+          })
         }
 
-        function createParagraphNear(state, dispatch) {
-            var sel = state.selection
-            var $from = sel.$from
-            var $to = sel.$to
-            if (sel instanceof AllSelection || $from.parent.inlineContent || $to.parent.inlineContent) {
-                return false
-            }
-            var type = defaultBlockAt($to.parent.contentMatchAt($to.indexAfter()))
-            if (!type || !type.isTextblock) {
-                return false
-            }
-            if (dispatch) {
-                var side = (!$from.parentOffset && $to.index() < $to.parent.childCount ? $from : $to).pos
-
-                if (!$from.parentOffset) {
-                    side = $to.pos
-                }
-
-                var tr = state.tr.insert(side, type.createAndFill())
-                tr.setSelection(TextSelection.create(tr.doc, side + 1))
-                dispatch(tr.scrollIntoView())
-            }
-            return true
+        return {
+          ...nodeViews,
+          [extension.name]: nodeView,
         }
+      }, views || {})
 
-        // 覆写默认回车行为
-        baseKeymap.Enter = chainCommands(newlineInCode, createParagraphNear, liftEmptyBlock, splitBlock)
+    return views
+  }
 
-        let doc = this.createDocument(this.options.content)
-        return EditorState.create({
-            schema: this.schema,
-            doc,
-            plugins: [
-                ...this.plugins,
-                ...this.keymaps,
-                dropCursor({ class: 'drop-cursor' }),
-                gapCursor(),
-                inputRules({
-                    rules: this.inputRules,
-                }),
-                keymap(baseKeymap),
-            ],
-        })
+  createView() {
+    if (!this.element) {
+      throw new Error('createView called before ref available')
     }
-
-    createDocument(content) {
-        if (!content) {
-            return this.schema.nodeFromJSON(this.options.emptyDocument)
+    let view = new EditorView(this.element, {
+      state: this.createState(),
+      nodeViews: this.nodeViews,
+      editable: () => !this.options.readonly,
+      dispatchTransaction: (transaction) => {
+        let isUpdateContent = transaction.getMeta('update.content')
+        if (this.options.readonly && !isUpdateContent && transaction.curSelection instanceof NodeSelection) {
+          return
         }
-
-        if (typeof content === 'object') {
-            try {
-                const node = this.schema.nodeFromJSON(checkContent(content, this.schema))
-                return checkAllNode(node)
-            } catch (error) {
-                return this.schema.nodeFromJSON(this.options.emptyDocument)
-            }
-        }
-    }
-
-    createSerializer() {
-        return this.extensions.serializer()
-    }
-
-    createParser() {
-        return this.extensions.parser({
-            schema: this.schema,
-        })
-    }
-
-    createCommands() {
-        return this.extensions.commands({
-            schema: this.schema,
-            view: this.view,
-        })
-    }
-
-    createNodeEditViewManager() {
-        return new NodeEditViewManager(this.extensions.extensions, this)
-    }
-
-    /**
-     * Register a ProseMirror plugin.
-     */
-    registerPlugin(plugin, handlePlugins) {
-        const plugins = typeof handlePlugins === 'function' ? handlePlugins(plugin, this.state.plugins) : [...this.state.plugins, plugin]
-
-        const state = this.state.reconfigure({ plugins })
-
+        const { state } = this.view.state.applyTransaction(transaction)
         this.view.updateState(state)
+
+        if (!transaction.docChanged) {
+          return
+        }
+        this[EDITOR_EVENTS.Update]()
+      },
+    })
+
+    if (this.options.readonly) {
+      view.dom.className += ' readonly'
     }
 
-    /**
-     * Unregister a ProseMirror plugin.
-     */
-    unregisterPlugin(nameOrPluginKey) {
-        if (this.isDestroyed) {
-            return
+    return view
+  }
+
+  createState() {
+    // copy prosemirror-commands createParagraphNear
+    function defaultBlockAt(match) {
+      for (var i = 0; i < match.edgeCount; i++) {
+        var ref = match.edge(i)
+        var type = ref.type
+        if (type.isTextblock && !type.hasRequiredAttrs()) {
+          return type
+        }
+      }
+      return null
+    }
+
+    function createParagraphNear(state, dispatch) {
+      var sel = state.selection
+      var $from = sel.$from
+      var $to = sel.$to
+      if (sel instanceof AllSelection || $from.parent.inlineContent || $to.parent.inlineContent) {
+        return false
+      }
+      var type = defaultBlockAt($to.parent.contentMatchAt($to.indexAfter()))
+      if (!type || !type.isTextblock) {
+        return false
+      }
+      if (dispatch) {
+        var side = (!$from.parentOffset && $to.index() < $to.parent.childCount ? $from : $to).pos
+
+        if (!$from.parentOffset) {
+          side = $to.pos
         }
 
-        const name = typeof nameOrPluginKey === 'string' ? `${nameOrPluginKey}$` : nameOrPluginKey.key
-
-        const state = this.state.reconfigure({
-            plugins: this.state.plugins.filter((plugin) => !plugin.key.startsWith(name)),
-        })
-
-        this.view.updateState(state)
+        var tr = state.tr.insert(side, type.createAndFill())
+        tr.setSelection(TextSelection.create(tr.doc, side + 1))
+        dispatch(tr.scrollIntoView())
+      }
+      return true
     }
 
-    getJSON() {
-        return this.state.doc.toJSON()
+    // 覆写默认回车行为
+    baseKeymap.Enter = chainCommands(newlineInCode, createParagraphNear, liftEmptyBlock, splitBlock)
+
+    let doc = this.createDocument(this.options.content)
+    return EditorState.create({
+      schema: this.schema,
+      doc,
+      plugins: [
+        ...this.plugins,
+        ...this.keymaps,
+        dropCursor({ class: 'drop-cursor' }),
+        gapCursor(),
+        inputRules({
+          rules: this.inputRules,
+        }),
+        keymap(baseKeymap),
+      ],
+    })
+  }
+
+  createDocument(content) {
+    if (!content) {
+      return this.schema.nodeFromJSON(this.options.emptyDocument)
     }
 
-    setContent(content = {}) {
-        const { doc, tr } = this.state
-        const document = this.createDocument(content)
-        const selection = TextSelection.create(doc, 0, doc.content.size)
-        const transaction = tr.setSelection(selection).setMeta('update.content', true).replaceSelectionWith(document, false)
+    if (typeof content === 'object') {
+      try {
+        const node = this.schema.nodeFromJSON(checkContent(content, this.schema))
+        return checkAllNode(node)
+      } catch (error) {
+        console.log('NodeFromJSON：', error)
+        return this.schema.nodeFromJSON(this.options.emptyDocument)
+      }
+    }
+  }
 
-        this.view.dispatch(transaction)
+  createSerializer() {
+    return this.extensions.serializer()
+  }
+
+  createParser() {
+    return this.extensions.parser({
+      schema: this.schema,
+    })
+  }
+
+  createCommands() {
+    return this.extensions.commands({
+      schema: this.schema,
+      view: this.view,
+    })
+  }
+
+  createNodeEditViewManager() {
+    return new NodeEditViewManager(this.extensions.extensions, this)
+  }
+
+  /**
+   * Register a ProseMirror plugin.
+   */
+  registerPlugin(plugin, handlePlugins) {
+    const plugins = typeof handlePlugins === 'function' ? handlePlugins(plugin, this.state.plugins) : [...this.state.plugins, plugin]
+
+    const state = this.state.reconfigure({ plugins })
+
+    this.view.updateState(state)
+  }
+
+  /**
+   * Unregister a ProseMirror plugin.
+   */
+  unregisterPlugin(nameOrPluginKey) {
+    if (this.isDestroyed) {
+      return
     }
 
-    clearContent() {
-        this.setContent(this.options.emptyDocument)
+    const name = typeof nameOrPluginKey === 'string' ? `${nameOrPluginKey}$` : nameOrPluginKey.key
+
+    const state = this.state.reconfigure({
+      plugins: this.state.plugins.filter((plugin) => !plugin.key.startsWith(name)),
+    })
+
+    this.view.updateState(state)
+  }
+
+  getJSON() {
+    return this.state.doc.toJSON()
+  }
+
+  setContent(content = {}) {
+    const { doc, tr } = this.state
+    const document = this.createDocument(content)
+    const selection = TextSelection.create(doc, 0, doc.content.size)
+    const transaction = tr.setSelection(selection).setMeta('update.content', true).replaceSelectionWith(document, false)
+
+    this.view.dispatch(transaction)
+  }
+
+  clearContent() {
+    this.setContent(this.options.emptyDocument)
+  }
+
+  focus(isLast) {
+    if (isLast) {
+      const { doc, tr } = this.state
+      const selection = TextSelection.atEnd(doc)
+      const transaction = tr.setSelection(selection)
+      this.view.dispatch(transaction)
     }
 
-    focus(isLast) {
-        if (isLast) {
-            const { doc, tr } = this.state
-            const selection = TextSelection.atEnd(doc)
-            const transaction = tr.setSelection(selection)
-            this.view.dispatch(transaction)
-        }
+    this.view && this.view.focus()
+  }
 
-        this.view && this.view.focus()
-    }
+  destroy() {
+    this.emit('destroy')
+    this.view && this.view.destroy()
+    this.nodeEditViewManager && this.nodeEditViewManager.destroy()
+    this.blockMenu && this.blockMenu.destroy()
+    this.linkToolbar && this.linkToolbar.destroy()
+    this.mockModel && this.mockModel.destroy()
 
-    destroy() {
-        this.emit('destroy')
-        this.view && this.view.destroy()
-        this.nodeEditViewManager && this.nodeEditViewManager.destroy()
-        this.blockMenu && this.blockMenu.destroy()
-        this.linkToolbar && this.linkToolbar.destroy()
-        this.mockModel && this.mockModel.destroy()
-
-        this.blockMenu = null
-        this.linkToolbar = null
-        this.floatingToolbar = null
-        this.mockModel = null
-    }
+    this.blockMenu = null
+    this.linkToolbar = null
+    this.floatingToolbar = null
+    this.mockModel = null
+  }
 }
 
 Object.keys(EDITOR_EVENTS).forEach(function (eventKey) {
-    let method = EDITOR_EVENTS[eventKey]
-    AcEditor.prototype[method] = function (args) {
-        this.emit(method, this, args)
-    }
+  let method = EDITOR_EVENTS[eventKey]
+  AcEditor.prototype[method] = function (args) {
+    this.emit(method, this, args)
+  }
 })
 
 export const createEditor = (el, opt) => AcEditor.create(el, opt)
