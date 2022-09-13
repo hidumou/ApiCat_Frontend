@@ -7,7 +7,7 @@ export default function checkAllNode($node) {
             child.check()
             children.push(child)
         } catch (error) {
-            // check error
+            console.log(error)
         }
     })
 

@@ -65,8 +65,6 @@ import CommonUrlManager from './lib/CommonUrlManager'
 import checkContent from './utils/checkContent'
 import checkAllNode from './utils/checkAllNode'
 
-window['TextSelection'] = TextSelection
-
 export const EDITOR_EVENTS = {
     Init: 'onInit',
     Transaction: 'onTransaction',
@@ -114,8 +112,8 @@ class AcEditor extends Emitter {
         getAllCommonParams: null,
         addCommonParam: null,
         deleteCommonParam: null,
-        showToast: () => {},
-        openNotification: () => {},
+        showToast: () => { },
+        openNotification: () => { },
     }
 
     static create(el, opt) {

@@ -2,8 +2,48 @@
   import { onMounted, markRaw, ref } from 'vue'
   import AcEditor from '@natosoft/editor'
   // import { doc4 as doc } from './doc'
-
-  const document = markRaw({})
+  const doc = {
+    type: 'doc',
+    content: [
+      {
+        type: 'http_status_code',
+        attrs: {
+          code: 200,
+          codeDesc: 'OK',
+          intro: 'Response Status Code:',
+        },
+      },
+      { type: 'code_block', attrs: { language: 'text' }, content: [{ type: 'text', text: '' }] },
+      {
+        type: 'http_status_code',
+        attrs: {
+          code: 200,
+          codeDesc: 'OK',
+          intro: 'Response Status Code:',
+        },
+      },
+      { type: 'code_block', attrs: { language: 'text' }, content: [{ type: 'text', text: '' }] },
+      { type: 'code_block', attrs: { language: 'text' }, content: [{ type: 'text', text: ' ' }] },
+      { type: 'code_block', attrs: { language: 'text' }, content: [{ type: 'text', text: '' }] },
+      {
+        type: 'http_status_code',
+        attrs: {
+          code: 200,
+          codeDesc: 'OK',
+          intro: 'Response Status Code:',
+        },
+      },
+      {
+        type: 'http_status_code',
+        attrs: {
+          code: 200,
+          codeDesc: 'OK',
+          intro: 'Response Status Code:',
+        },
+      },
+    ],
+  }
+  const document = markRaw(doc)
   const editor = ref(null)
 
   const options = {
