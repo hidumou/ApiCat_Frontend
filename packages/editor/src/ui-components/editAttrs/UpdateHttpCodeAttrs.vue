@@ -8,16 +8,16 @@
     size="small"
     class="update-attr-layer update-attr-http-code"
   >
-    <el-form-item prop="intro">
-      <el-input ref="intro" placeholder="Response Status Code:" v-model="attrs.intro" clearable />
-    </el-form-item>
-
     <el-form-item prop="code">
       <el-select filterable clearable v-model="attrs.code" placeholder="状态码" :teleported="false">
         <el-option v-for="item in httpCodeList" :key="item.code" :label="item.code + ' ' + item.desc" :value="item.code">
           {{ item.code }} {{ item.desc }}
         </el-option>
       </el-select>
+    </el-form-item>
+
+    <el-form-item prop="intro">
+      <el-input ref="intro" placeholder="Response Status Code:" v-model="attrs.intro" clearable />
     </el-form-item>
   </el-form>
 </template>
@@ -45,9 +45,9 @@
         }
       },
       node: function () {
-        console.log()
         if (this.node) {
           this.intro = this.node.attrs.intro
+          this.code = this.node.attrs.code
         }
       },
     },
@@ -56,6 +56,7 @@
         httpCodeList: HttpCodeMap.concat([]),
         popper: null,
         intro: '',
+        code: '',
         isEnterPressed: false,
         rules: {
           code: { required: true, message: '', trigger: 'change' },
@@ -71,8 +72,9 @@
           if (valid && this.node) {
             const attrs = { ...this.attrs }
             const codeInfo = this.httpCodeList.find((item) => item.code === this.attrs.code) || { desc: '' }
+
             // 对比是否改变，未改变不进行操作
-            if (this.intro === attrs.intro && !this.isEnterPressed) {
+            if (this.intro === attrs.intro && this.code === attrs.code && !this.isEnterPressed) {
               return
             }
 

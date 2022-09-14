@@ -72,7 +72,6 @@
       onKeydown(event) {
         event.preventDefault()
         var text = !this.aText ? this.mark.text : this.aText
-        console.log(text)
         $emit(this, 'on-create', { ...this.attrs, href: this.$refs.input.value, text })
         this.$refs.input.value = ''
         this.$refs.inputText.value = ''
