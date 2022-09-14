@@ -17,8 +17,8 @@ export default (content, schema) => {
       return false
     })
 
-    unknownTypes.length && console.error('Unknown node type:', unknownTypes.join('、'))
-    errorNodes.length && console.error('error node schema:', errorNodes)
+    // unknownTypes.length && console.error('Unknown node type:', unknownTypes.join('、'))
+    // errorNodes.length && console.error('error node schema:', errorNodes)
     return content
   }
 

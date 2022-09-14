@@ -77,7 +77,7 @@
             }
 
             attrs.codeDesc = codeInfo.desc
-            cb(this.isCreate, this.node, { ...this.attrs })
+            cb(this.isCreate, this.node, attrs)
           }
         })
       },
