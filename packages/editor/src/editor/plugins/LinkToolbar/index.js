@@ -57,8 +57,8 @@ export default class LinkToolbar {
   createLink(attrs) {
     const { dispatch, state } = this.view
     const { from, to } = state.selection
-    const title = attrs.href
-    dispatch(this.view.state.tr.insertText(attrs.href, from, to).addMark(from, to + title.length, state.schema.marks.link.create(attrs)))
+    const href = attrs.href
+    dispatch(this.view.state.tr.insertText(attrs.text || href, from, to).addMark(from, to + (attrs.text || href).length, state.schema.marks.link.create(attrs)))
   }
 
   createPopper() {

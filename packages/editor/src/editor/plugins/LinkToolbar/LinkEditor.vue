@@ -1,21 +1,48 @@
 <template>
-  <div class="link-bar-wrapper">
-    <input type="text" v-model="attrs.href" class="link-input" ref="input" placeholder="链接地址" @keydown.enter="onKeydown" />
-    <hr />
-    <input type="text" v-model="aText" class="link-input block" ref="inputText" placeholder="链接标题" @keydown.enter="onKeydown" />
+  <el-form
+    ref="updateHttpUrlAttrs"
+    :model="attrs"
+    label-width="0"
+    size="small"
+    class="update-attr-layer link-bar-wrapper"
+    :show-message="false"
+    @keydown.enter="onKeydown"
+  >
+    <el-row type="flex" :gutter="10">
+      <el-col :span="isCreate ? 12 : 11">
+        <el-form-item prop="href">
+          <el-input ref="input" placeholder="链接地址" v-model="attrs.href" />
+        </el-form-item>
+      </el-col>
 
-    <div class="link-bar-btns" v-if="!isCreate">
-      <button class="link-btn" @click="onRemoveLinkClick">
-        <i class="editor-font editor-trash" title="移除链接"></i>
-      </button>
-    </div>
-  </div>
+      <el-col :span="isCreate ? 12 : 11">
+        <el-form-item>
+          <el-input ref="inputText" placeholder="链接标题" v-model="aText" />
+        </el-form-item>
+      </el-col>
+
+      <el-col :span="2" v-if="!isCreate" class="link-bar-btns">
+        <button class="link-btn" @click="onRemoveLinkClick">
+          <i class="editor-font editor-trash" title="移除链接"></i>
+        </button>
+      </el-col>
+    </el-row>
+  </el-form>
 </template>
 
 <script>
   import { $emit } from '@natosoft/shared'
+  import { ElForm, ElFormItem, ElCol, ElRow, ElInput } from 'element-plus'
 
   export default {
+    name: 'LinkEditor',
+    components: {
+      ElForm,
+      ElFormItem,
+      ElInput,
+      ElCol,
+      ElRow,
+    },
     props: {
       mark: {
         type: Object,
@@ -28,11 +55,13 @@
         default: false,
       },
     },
-    name: 'LinkEditor',
     data() {
       return {
         attrs: { ...this.mark.attrs },
         aText: this.mark.text,
+        rules: {
+          href: { message: '', trigger: 'change', type: 'url' },
+        },
       }
     },
     watch: {
@@ -54,17 +83,18 @@
     methods: {
       onCloseClick(e) {
         e.stopPropagation()
-        this.$refs.input.value = ''
+        this.attrs.href = ''
         $emit(this, 'on-close')
       },
 
       toggleIsOpen(e) {
         e.stopPropagation()
         $emit(this, 'toggle-blank', { ...this.attrs, openInNewTab: !this.mark.attrs.openInNewTab })
-        this.$refs.input.value = ''
+        this.attrs.href = ''
       },
 
       onRemoveLinkClick(e) {
+        e.preventDefault()
         e.stopPropagation()
         $emit(this, 'on-remove')
       },
@@ -72,9 +102,10 @@
       onKeydown(event) {
         event.preventDefault()
         var text = !this.aText ? this.mark.text : this.aText
-        $emit(this, 'on-create', { ...this.attrs, href: this.$refs.input.value, text })
-        this.$refs.input.value = ''
-        this.$refs.inputText.value = ''
+        console.log(text)
+        $emit(this, 'on-create', { ...this.attrs, text })
+        this.attrs.href = ''
+        this.aText = ''
       },
 
       focus() {
