@@ -471,7 +471,22 @@ class AcEditor extends Emitter {
   }
 
   getJSON() {
-    return this.state.doc.toJSON()
+    const doc = this.state.doc.toJSON()
+
+    ;(doc.content || []).forEach((node) => {
+      if (node.type === 'code_block') {
+        const text = node.content[0].text
+        try {
+          node.content[0].text = JSON.stringify(JSON.parse(text), null, 4)
+        } catch (e) {
+          node.content[0].text = text
+        }
+      }
+
+      return node
+    })
+
+    return doc
   }
 
   setContent(content = {}) {
