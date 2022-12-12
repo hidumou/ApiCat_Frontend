@@ -474,7 +474,7 @@ class AcEditor extends Emitter {
     const doc = this.state.doc.toJSON()
 
     ;(doc.content || []).forEach((node) => {
-      if (node.type === 'code_block') {
+      if (node.type === 'code_block' && node.content && node.content[0]) {
         const text = node.content[0].text
         try {
           node.content[0].text = JSON.stringify(JSON.parse(text), null, 4)
