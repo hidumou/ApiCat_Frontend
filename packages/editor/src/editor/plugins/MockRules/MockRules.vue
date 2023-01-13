@@ -1,7 +1,7 @@
 <template>
-  <el-dialog title="Mock 规则" v-model="visible" :close-on-click-modal="false" :close-on-press-escape="false" custom-class="ac-mock" append-to-body>
+  <el-dialog title="Mock 规则" v-model="visible" :close-on-click-modal="false" :close-on-press-escape="false" class="ac-mock" append-to-body>
     <div class="ac-mock-container">
-      <el-form :model="form" :rules="rules" ref="mockForm" @submit.native.prevent="onOkBtnClick" @keyup.enter.native="onOkBtnClick">
+      <el-form :model="form" :rules="rules" ref="mockForm" @submit.prevent="onOkBtnClick" @keyup.enter="onOkBtnClick">
         <el-form-item label="" prop="mock_rule">
           <el-input placeholder="Mock Rules" v-model="form.mock_rule" clearable />
         </el-form-item>
@@ -13,9 +13,9 @@
             :prefix-icon="search"
             size="small"
             v-model="mockQuery"
-            @keydown.native.down.stop.prevent="onSelectMockRuleByKeyDown('next')"
-            @keydown.native.up.stop.prevent="onSelectMockRuleByKeyDown('prev')"
-            @keydown.native.enter.prevent="onSelectedMockRuleByEnter"
+            @keydown.down.stop.prevent="onSelectMockRuleByKeyDown('next')"
+            @keydown.up.stop.prevent="onSelectMockRuleByKeyDown('prev')"
+            @keydown.enter.prevent="onSelectedMockRuleByEnter"
             placeholder="关键字"
             clearable
           />
